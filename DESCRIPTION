@@ -9,3 +9,13 @@ Description: More about what it does (maybe more than one line)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
+Suggests: 
+    testthat (>= 2.1.0)
+Imports: 
+    magrittr,
+    RCurl,
+    glue,
+    PNADcIBGE,
+    dplyr,
+    stats
+RoxygenNote: 7.1.0

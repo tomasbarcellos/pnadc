@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+library(pnadc)
 ```
 
 # pnadc
@@ -37,18 +38,24 @@ O pacote foi pensado para que poassa ser usadao assim:
 
 ### Ler dados da PNAD Continua
 
-```{r example, eval = FALSE}
+Há funções de utilidade para baixar os dados da PNAD e para
+extrair os arquivos.
+
+```{r download, eval = FALSE}
 library(pnadc)
 # Vai baixar numa pasta "dados" na raiz do projeto.
 # Isso não vai ser possível de alterar pelo pacote para dar uma 
 # estrutura de trabalho homogênea e que possa ser confiada
 download_pnad(2019, 4)
-
-# Aqui ainda tem que pensar se vai deixar possível 
-# mudar as variaveis que lê ou se travamos naquelas mais usadas
-pnad2019_4 <- ler_pnad(2019, 4)
-# Outra opção é não ter essa função e confiar/importar de PNADcIBGE
+unzip_pnad(2019, 4)
 ```
+
+Assim como para leitura dos dados com as variaveis padronizadas.
+
+```{r leitura}
+pnad2019_4 <- ler_pnad(2019, 4)
+```
+
 
 ### Funções de utilidade
 
@@ -56,15 +63,25 @@ A PNAD é uma pesquisa estratificada e em geral é analisada usando o pacote
 `survey`. Mas esse pacote é muito lento para realizar alguns cálculos e 
 principalemente para fazer análises exploratórias.
 
-```{r utils, eval = FALSE}
+```{r utils}
 pnad2019_4 %>% 
   # Na verdade um contador respeitando os pesos
-  proporcao(sexo)
+  participacao(sexo)
 
 # Deve funcionar com group_by
+# Ainda não funciona
+library(dplyr)
 pnad2019_4 %>% 
-  grou_by(regiao) %>% 
-  proporcao(sexo)
+  group_by(vinculo_primario) %>% 
+  participacao(sexo)
+
+pnad2019_4 %>% 
+  tidyr::nest(data = -vinculo_primario) %>%
+  mutate(prop = purrr::map(data, participacao, sexo)) %>% 
+  select(-data) %>% 
+  tidyr::unnest(prop)
+
+```
 ```
 
 O ideal era que essas funções de utilidade não se contivessem apenas 
