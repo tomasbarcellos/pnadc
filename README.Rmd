@@ -98,4 +98,57 @@ pnad2019_4 %>%
   total(sexo)
 ```
 
+O pacote possibilita fazer coisas como
 
+```{r anim, eval = FALSE}
+pnad <- tibble::tibble(
+  ano = c(rep(2012:2019, each = 4), 2020),
+  trimestre = rep(1:4, length.out = 33)
+) %>%
+  mutate(dado = purrr::map2(ano, trimestre, ler_pnad)) %>% 
+  pull(dado) %>% 
+  map_df(~nest(.x, dado = -c(ano, trimestre, vinculo_primario)))
+
+mais_comum <- function(x) {
+  resp <- sort(table(x), decreasing = TRUE)
+  if (length(resp) == 0) return("")
+  names(resp)[[1]]
+}
+
+estats <- pnad %>% 
+  group_by(ano, trimestre, vinculo_primario) %>%
+  mutate(
+    brancos = map_dbl(dado, ~weighted.mean(.x$cor == 1, .x$peso_posestrat, na.rm = TRUE)),
+    homens = map_dbl(dado, ~weighted.mean(.x$sexo == 1, .x$peso_posestrat, na.rm = TRUE)),
+    idade = map_dbl(dado, ~weighted.mean(.x$idade, .x$peso_posestrat, na.rm = TRUE)),
+    renda = map_dbl(dado, ~weighted.mean(.x$rendimento_primario, .x$peso_posestrat, na.rm = TRUE)),
+    jornada = map_dbl(dado, ~weighted.mean(.x$jornada_principal, .x$peso_posestrat, na.rm = TRUE)),
+    profissao = map_chr(dado, ~mais_comum(.x$profissao_principal)),
+    vinculo = map_chr(vinculo_primario, ~case_when(
+      .x == "01" ~ "Privado carteira",
+      .x == "02" ~ "Privado informal",
+      .x == "03" ~ "Doméstico carteira",
+      .x == "04" ~ "Doméstico informal",
+      .x == "05" ~ "Público carteira",
+      .x == "06" ~ "Público s/ carteira",
+      .x == "07" ~ "Militar",
+      .x == "08" ~ "Empregador",
+      .x == "09" ~ "Conta-própria",
+      .x == "10" ~ "Familiar",
+      TRUE ~ NA_character_
+    )),
+    periodo = ano + (trimestre - 1) / 4
+  )
+
+pontos <- ggplot(filter(estats, !is.na(periodo)), aes(brancos, homens, col = vinculo)) +
+  geom_point() 
+  
+anim <- pontos +
+  labs(title = 'Year: {ano}T{trimestre}', x = '% brancos', y = '% homens') +
+  gganimate::transition_time(periodo) +
+  gganimate::ease_aes('linear')
+
+anim
+```
+
+![](pnad.gif)

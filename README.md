@@ -42,6 +42,15 @@ Assim como para leitura dos dados com as variaveis padronizadas.
 
 ``` r
 pnad2019_4 <- ler_pnad(2019, 4)
+#> Warning: NAs introduzidos por coerção
+
+#> Warning: NAs introduzidos por coerção
+
+#> Warning: NAs introduzidos por coerção
+
+#> Warning: NAs introduzidos por coerção
+
+#> Warning: NAs introduzidos por coerção
 ```
 
 ### Funções de utilidade
@@ -54,12 +63,11 @@ cálculos e principalemente para fazer análises exploratórias.
 pnad2019_4 %>% 
   # Na verdade um contador respeitando os pesos
   participacao(sexo)
-#> # A tibble: 2 x 2
-#> # Groups:   sexo [2]
+#> # A tibble: 1 x 2
+#> # Groups:   sexo [1]
 #>   sexo  participacao
 #>   <chr>        <dbl>
-#> 1 1             48.1
-#> 2 2             51.9
+#> 1 <NA>           NaN
 
 # Deve funcionar com group_by
 # Ainda não funciona
@@ -76,45 +84,21 @@ library(dplyr)
 pnad2019_4 %>% 
   group_by(vinculo_primario) %>% 
   participacao(sexo)
-#> Warning in (~sexo) == df[[var]]: comprimento do objeto maior não é múltiplo
-#> do comprimento do objeto menor
-#> Warning in (~sexo) == df[[var]]: comprimento do objeto maior não é múltiplo
-#> do comprimento do objeto menor
-#> # A tibble: 22 x 3
-#> # Groups:   sexo [2]
-#>    vinculo_primario sexo  participacao
-#>    <chr>            <chr>        <dbl>
-#>  1 01               1             48.1
-#>  2 01               2             51.9
-#>  3 02               1             48.1
-#>  4 02               2             51.9
-#>  5 03               1             48.1
-#>  6 03               2             51.9
-#>  7 04               1             48.1
-#>  8 04               2             51.9
-#>  9 05               1             48.1
-#> 10 05               2             51.9
-#> # … with 12 more rows
+#> # A tibble: 1 x 3
+#> # Groups:   sexo [1]
+#>   vinculo_primario sexo  participacao
+#>   <chr>            <chr>        <dbl>
+#> 1 <NA>             <NA>           NaN
 
 pnad2019_4 %>% 
   tidyr::nest(data = -vinculo_primario) %>%
   mutate(prop = purrr::map(data, participacao, sexo)) %>% 
   select(-data) %>% 
   tidyr::unnest(prop)
-#> # A tibble: 22 x 3
-#>    vinculo_primario sexo  participacao
-#>    <chr>            <chr>        <dbl>
-#>  1 01               1             59.1
-#>  2 01               2             40.9
-#>  3 <NA>             1             41.6
-#>  4 <NA>             2             58.4
-#>  5 07               1             43.3
-#>  6 07               2             56.7
-#>  7 09               1             64.5
-#>  8 09               2             35.5
-#>  9 02               1             67.2
-#> 10 02               2             32.8
-#> # … with 12 more rows
+#> # A tibble: 1 x 3
+#>   vinculo_primario sexo  participacao
+#>   <chr>            <chr>        <dbl>
+#> 1 <NA>             <NA>           NaN
 ```
 
 \`\`\`
@@ -132,3 +116,58 @@ pnad2019_4 %>%
   grou_by(regiao) %>% 
   total(sexo)
 ```
+
+O pacote possibilita fazer coisas como
+
+``` r
+pnad <- tibble::tibble(
+  ano = c(rep(2012:2019, each = 4), 2020),
+  trimestre = rep(1:4, length.out = 33)
+) %>%
+  mutate(dado = purrr::map2(ano, trimestre, ler_pnad)) %>% 
+  pull(dado) %>% 
+  map_df(~nest(.x, dado = -c(ano, trimestre, vinculo_primario)))
+
+mais_comum <- function(x) {
+  resp <- sort(table(x), decreasing = TRUE)
+  if (length(resp) == 0) return("")
+  names(resp)[[1]]
+}
+
+estats <- pnad %>% 
+  group_by(ano, trimestre, vinculo_primario) %>%
+  mutate(
+    brancos = map_dbl(dado, ~weighted.mean(.x$cor == 1, .x$peso_posestrat, na.rm = TRUE)),
+    homens = map_dbl(dado, ~weighted.mean(.x$sexo == 1, .x$peso_posestrat, na.rm = TRUE)),
+    idade = map_dbl(dado, ~weighted.mean(.x$idade, .x$peso_posestrat, na.rm = TRUE)),
+    renda = map_dbl(dado, ~weighted.mean(.x$rendimento_primario, .x$peso_posestrat, na.rm = TRUE)),
+    jornada = map_dbl(dado, ~weighted.mean(.x$jornada_principal, .x$peso_posestrat, na.rm = TRUE)),
+    profissao = map_chr(dado, ~mais_comum(.x$profissao_principal)),
+    vinculo = map_chr(vinculo_primario, ~case_when(
+      .x == "01" ~ "Privado carteira",
+      .x == "02" ~ "Privado informal",
+      .x == "03" ~ "Doméstico carteira",
+      .x == "04" ~ "Doméstico informal",
+      .x == "05" ~ "Público carteira",
+      .x == "06" ~ "Público s/ carteira",
+      .x == "07" ~ "Militar",
+      .x == "08" ~ "Empregador",
+      .x == "09" ~ "Conta-própria",
+      .x == "10" ~ "Familiar",
+      TRUE ~ NA_character_
+    )),
+    periodo = ano + (trimestre - 1) / 4
+  )
+
+pontos <- ggplot(filter(estats, !is.na(periodo)), aes(brancos, homens, col = vinculo)) +
+  geom_point() 
+  
+anim <- pontos +
+  labs(title = 'Year: {ano}T{trimestre}', x = '% brancos', y = '% homens') +
+  gganimate::transition_time(periodo) +
+  gganimate::ease_aes('linear')
+
+anim
+```
+
+![](pnad.gif)
