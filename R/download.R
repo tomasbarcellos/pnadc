@@ -41,6 +41,8 @@ unzip_pnad <- function(ano, trimestre) {
   if (!file.exists(path_zip))
     stop("Zip deste ano/trimestre não foi encontrado.")
 
+  old <- dir("dados")
+
   unzip(path_zip, exdir = "dados")
 
   any(dir("dados") != old)

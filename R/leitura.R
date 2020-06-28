@@ -11,8 +11,7 @@
 ler_pnad <- function(ano, trimestre) {
   arqs <- dir("dados/", all.files = TRUE, full.names = TRUE)
   path <- arqs %>%
-    stringr::str_subset(glue::glue("{ano}")) %>%
-    stringr::str_subset(glue::glue("{trimestre}")) %>%
+    stringr::str_subset(glue::glue("_0{trimestre}{ano}")) %>%
     stringr::str_subset(glue::glue("\\.txt$"))
 
   vars <- c("Ano", "Trimestre", "UF", "V1008", "V1014",
