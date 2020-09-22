@@ -7,7 +7,7 @@
 #' @export
 #'
 #' @examples
-#' \notrun{res <- ler_pnad(2018, 3)}
+#' \dontrun{res <- ler_pnad(2018, 3)}
 ler_pnad <- function(ano, trimestre) {
   arqs <- dir("dados/", all.files = TRUE, full.names = TRUE)
   path <- arqs %>%
