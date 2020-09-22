@@ -18,5 +18,5 @@ Uma tibble
 Title
 }
 \examples{
-\notrun{res <- ler_pnad(2018, 3)}
+\dontrun{res <- ler_pnad(2018, 3)}
 }
