@@ -22,7 +22,7 @@ install.packages("pnadc")
 
 ## Como usar
 
-O pacote foi pensado para que poassa ser usadao assim:
+O pacote foi pensado para que possa ser usado assim:
 
 ### Ler dados da PNAD Continua
 
@@ -42,15 +42,6 @@ Assim como para leitura dos dados com as variaveis padronizadas.
 
 ``` r
 pnad2019_4 <- ler_pnad(2019, 4)
-#> Warning: NAs introduzidos por coerção
-
-#> Warning: NAs introduzidos por coerção
-
-#> Warning: NAs introduzidos por coerção
-
-#> Warning: NAs introduzidos por coerção
-
-#> Warning: NAs introduzidos por coerção
 ```
 
 ### Funções de utilidade
@@ -63,16 +54,17 @@ cálculos e principalemente para fazer análises exploratórias.
 pnad2019_4 %>% 
   # Na verdade um contador respeitando os pesos
   participacao(sexo)
-#> # A tibble: 1 x 2
-#> # Groups:   sexo [1]
+#> # A tibble: 2 × 2
+#> # Groups:   sexo [2]
 #>   sexo  participacao
 #>   <chr>        <dbl>
-#> 1 <NA>           NaN
+#> 1 1             48.1
+#> 2 2             51.9
 
 # Deve funcionar com group_by
 # Ainda não funciona
 library(dplyr)
-#> Warning: package 'dplyr' was built under R version 3.5.2
+#> Warning: package 'dplyr' was built under R version 4.0.5
 #> 
 #> Attaching package: 'dplyr'
 #> The following objects are masked from 'package:stats':
@@ -84,29 +76,56 @@ library(dplyr)
 pnad2019_4 %>% 
   group_by(vinculo_primario) %>% 
   participacao(sexo)
-#> # A tibble: 1 x 3
-#> # Groups:   sexo [1]
-#>   vinculo_primario sexo  participacao
-#>   <chr>            <chr>        <dbl>
-#> 1 <NA>             <NA>           NaN
+#> Warning in (~sexo) == df[[var]]: comprimento do objeto maior não é múltiplo do
+#> comprimento do objeto menor
+#> Warning in (~sexo) == df[[var]]: comprimento do objeto maior não é múltiplo do
+#> comprimento do objeto menor
+#> # A tibble: 22 × 3
+#> # Groups:   sexo [2]
+#>    vinculo_primario sexo  participacao
+#>    <chr>            <chr>        <dbl>
+#>  1 01               1             48.1
+#>  2 01               2             51.9
+#>  3 02               1             48.1
+#>  4 02               2             51.9
+#>  5 03               1             48.1
+#>  6 03               2             51.9
+#>  7 04               1             48.1
+#>  8 04               2             51.9
+#>  9 05               1             48.1
+#> 10 05               2             51.9
+#> # … with 12 more rows
+#> # ℹ Use `print(n = ...)` to see more rows
 
 pnad2019_4 %>% 
   tidyr::nest(data = -vinculo_primario) %>%
   mutate(prop = purrr::map(data, participacao, sexo)) %>% 
   select(-data) %>% 
   tidyr::unnest(prop)
-#> # A tibble: 1 x 3
-#>   vinculo_primario sexo  participacao
-#>   <chr>            <chr>        <dbl>
-#> 1 <NA>             <NA>           NaN
+#> # A tibble: 22 × 3
+#>    vinculo_primario sexo  participacao
+#>    <chr>            <chr>        <dbl>
+#>  1 01               1             59.1
+#>  2 01               2             40.9
+#>  3 <NA>             1             41.6
+#>  4 <NA>             2             58.4
+#>  5 07               1             43.3
+#>  6 07               2             56.7
+#>  7 09               1             64.5
+#>  8 09               2             35.5
+#>  9 02               1             67.2
+#> 10 02               2             32.8
+#> # … with 12 more rows
+#> # ℹ Use `print(n = ...)` to see more rows
 ```
 
-\`\`\`
+```` 
 
-O ideal era que essas funções de utilidade não se contivessem apenas a
-dados relativos mas também fossem capazes de somar totais.
+O ideal era que essas funções de utilidade não se contivessem apenas 
+a dados relativos mas também fossem capazes de somar totais.
 
-``` r
+
+```r
 pnad2019_4 %>% 
   # Na verdade um somador respeitando os pesos e as projeções de pop
   total(sexo)
@@ -115,7 +134,7 @@ pnad2019_4 %>%
 pnad2019_4 %>% 
   grou_by(regiao) %>% 
   total(sexo)
-```
+````
 
 O pacote possibilita fazer coisas como
 

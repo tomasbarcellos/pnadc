@@ -34,7 +34,7 @@ install.packages("pnadc")
 
 ## Como usar
 
-O pacote foi pensado para que poassa ser usadao assim:
+O pacote foi pensado para que possa ser usado assim:
 
 ### Ler dados da PNAD Continua
 
