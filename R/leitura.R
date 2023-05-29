@@ -9,7 +9,7 @@
 #' @examples
 #' \dontrun{res <- ler_pnad(2018, 3)}
 ler_pnad <- function(ano, trimestre) {
-  arqs <- dir("dados/", all.files = TRUE, full.names = TRUE)
+  arqs <- dir("dados/", all.files = TRUE, full.names = TRUE, recursive = TRUE)
   path <- arqs %>%
     stringr::str_subset(glue::glue("_0{trimestre}{ano}")) %>%
     stringr::str_subset(glue::glue("\\.txt$"))
