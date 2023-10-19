@@ -17,7 +17,7 @@ ler_pnad <- function(ano, trimestre) {
   vars <- c("Ano", "Trimestre", "UF", "V1008", "V1014",
             "V1016", "V1022", "V1027", "V1028", "V1029",
             "V2007", "V2010", "V2009", "V3004", "VD4009","VD4010",
-            "V4010", "V4012", "V4013", "VD4017", "V403312",
+            "V4010", "V4012", "V4013", "VD4017", "V4019", "V403312",
             "V4039", "V4041", "V4043", "V4044", "V4047",
             "V4048", "V405112", "V4056"
   )
@@ -35,7 +35,7 @@ ler_pnad <- function(ano, trimestre) {
         profissao_principal = V4010, profissao_secundario = V4041,
         jornada_principal = V4039, jornada_secundario = V4056,
         rendimento = V403312,
-        rendimento_primario = VD4017, rendimento_secundario = V405112,
+        rendimento_primario = VD4017, cnpj = V4019, rendimento_secundario = V405112,
         grupo_setor_principal = VD4010, setor_principal = V4013,
         setor_secundario = V4044,
         tipo_vinculo = V4012,
