@@ -14,7 +14,7 @@ ler_pnad <- function(ano, trimestre) {
     stringr::str_subset(glue::glue("_0{trimestre}{ano}")) %>%
     stringr::str_subset(glue::glue("\\.txt$"))
 
-  vars <- c("Ano", "Trimestre", "UF", "V1008", "V1014",
+  vars <- c("Ano", "Trimestre", "UF", "UPA", "V1008", "V1014",
             "V1016", "V1022", "V1027", "V1028", "V1029",
             "V2007", "V2010", "V2009", "V3004", "VD4009","VD4010",
             "V4010", "V4012", "V4013", "VD4017", "V4019", "V403312",
