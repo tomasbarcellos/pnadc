@@ -44,3 +44,17 @@ ler_pnad <- function(ano, trimestre) {
       ) %>%
       dplyr::mutate_at(dplyr::vars(ano:estrato), as.integer)
 }
+
+#' Ler dados da PNADc Anual
+#'
+#' @param ano Ano da pesquisa
+#'
+#' @return O Data frame com os microdados
+#' @export
+#'
+#' @examples
+#' ler_pnad_anual(2022)
+ler_pnad_anual <- function(ano) {
+  PNADcIBGE::get_pnadc(year = ano, interview = 1,
+                       design = FALSE)
+}

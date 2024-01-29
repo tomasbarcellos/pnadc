@@ -3,6 +3,7 @@
 export("%>%")
 export(download.file)
 export(ler_pnad)
+export(ler_pnad_anual)
 export(participacao)
 export(unzip)
 importFrom(magrittr,"%>%")
